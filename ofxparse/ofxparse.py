@@ -22,6 +22,11 @@ else:
 
 from . import mcc
 
+try:
+    import arrow
+except ImportError:
+    arrow = None
+
 
 def skip_headers(fh):
     '''
@@ -416,10 +421,15 @@ class OfxParser(object):
             local_date = datetime.datetime.strptime(
                 ofxDateTime[:14], '%Y%m%d%H%M%S'
             )
+            if arrow:
+                return arrow.arrow.Arrow.fromdatetime(local_date, tz)
             return local_date - timeZoneOffset
         except:
-            return datetime.datetime.strptime(
-                ofxDateTime[:8], '%Y%m%d') - timeZoneOffset
+            local_date = datetime.datetime.strptime(
+                ofxDateTime[:8], '%Y%m%d')
+            if arrow:
+                return arrow.arrow.Arrow.fromdatetime(local_date, tz)
+            return local_date - timeZoneOffset
 
     @classmethod
     def parseAcctinfors(cls_, acctinfors_ofx, ofx):
